@@ -54,25 +54,29 @@ def iterate(
 
 
 X_VALUE_INIT = 0.0
-Y_VALUE_RANGE = (-0.1, 2)
 Y_VALUE_INIT = 1.0
+X_VALUE_RANGE = [X_VALUE_INIT, 8.0]
+Y_VALUE_RANGE = (-0.1, 2)
+
+ALL_APPROX_FUNCTIONS = ["euler", "heun", "runge kutta 4", "runge_kutta 4 38", "runge kutta 5"]
+APPROX_FUNCTIONS = ALL_APPROX_FUNCTIONS[:3]
 
 
-def render(x_value_range: tuple[float, float], precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
+def render(precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
     fig, ax = plt.subplots(1, 1, layout="constrained", figsize=(12, 8))
 
     r0 = make_coord(X_VALUE_INIT, Y_VALUE_INIT)
 
     def condition(r: Coord) -> bool:
         return (
-            r[0] >= x_value_range[0]
-            and r[0] <= x_value_range[1]
+            r[0] >= X_VALUE_RANGE[0]
+            and r[0] <= X_VALUE_RANGE[1]
             and r[1] >= Y_VALUE_RANGE[0]
             and r[1] <= Y_VALUE_RANGE[1]
         )
 
     ax.plot(
-        xs := np.arange(*x_value_range, (x_value_range[1] - x_value_range[0]) / 666),
+        xs := np.arange(X_VALUE_RANGE[0], X_VALUE_RANGE[1], (X_VALUE_RANGE[1] - X_VALUE_RANGE[0]) / 666),
         solution(xs),
         label="true value",
         linestyle=":",
@@ -80,14 +84,14 @@ def render(x_value_range: tuple[float, float], precision: float) -> tuple[mpl_fi
         color="green",
     )
 
-    for method in ("euler", "heun", "runge kutta 4", "runge_kutta 4 38", "runge kutta 5"):
+    for method in APPROX_FUNCTIONS:
         f = getattr(approx_methods, "_".join(method.split()))
-        if x_value_range[1] > X_VALUE_INIT:
+        if X_VALUE_RANGE[1] > X_VALUE_INIT:
             ax.plot(*iterate(f, r0, condition, precision), label=method)
-        if x_value_range[0] < X_VALUE_INIT:
+        if X_VALUE_RANGE[0] < X_VALUE_INIT:
             ax.plot(*iterate(f, r0, condition, -precision), label=method)
 
-    ax.set_xlim(*x_value_range)
+    ax.set_xlim(*X_VALUE_RANGE)
     ax.set_ylim(*Y_VALUE_RANGE)
     ax.legend(loc="upper right", ncols=1)
 
@@ -96,17 +100,37 @@ def render(x_value_range: tuple[float, float], precision: float) -> tuple[mpl_fi
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("precision", default=0.1, type=float)
-    parser.add_argument("-x_min", default=X_VALUE_INIT, type=float)
-    parser.add_argument("-x_max", default=8.0, type=float)
-    parser.add_argument("-out", type=str)
+    parser.add_argument("precision", default=0.1, type=float, metavar="step", help="Approximation step")
+    parser.add_argument("-x_min", default=X_VALUE_INIT, type=float, metavar="range[0]", help="Displayed range start")
+    parser.add_argument("-x_max", default=8.0, type=float, metavar="range[1]", help="Displayed range end")
+    parser.add_argument(
+        "-out",
+        type=str,
+        metavar="{*.png, *.jpg, ...}",
+        help="Enables writting to file, pass destination file path",
+    )
+    parser.add_argument(
+        "-methods",
+        default=[*APPROX_FUNCTIONS],
+        nargs="+",
+        type=str,
+        metavar="method",
+        choices=ALL_APPROX_FUNCTIONS,
+        help=f"list of approximation function from `approx_methods.py`: {'{'}{', '.join(ALL_APPROX_FUNCTIONS)}{'}'}",
+    )
 
     args = parser.parse_args()
+
+    APPROX_FUNCTIONS.clear()
+    APPROX_FUNCTIONS.extend(args.methods)
 
     if not (args.x_min <= args.x_max):
         raise ValueError("Range arguments have to be ordered correctly")
 
-    fig, _ = render((args.x_min, args.x_max), abs(tp.cast("float", args.precision)))
+    X_VALUE_RANGE[0] = args.x_min
+    X_VALUE_RANGE[1] = args.x_max
+
+    fig, _ = render(abs(tp.cast("float", args.precision)))
 
     if args.out is not None:
         fig.savefig(args.out)
