@@ -1,7 +1,7 @@
 [project]
 name = "differencial-equations_lab-work-1"
 version = "1.0.0"
-requires-python = "==3.14.2"
+requires-python = "==3.14.*"
 authors = [
   { name="Бородулин Фёдор", email="373151@edu.itmo.ru" },
 ]
@@ -23,9 +23,12 @@ include = [
 line-length = 120
 
 [project.scripts]
-diff-eq-001 = "src.main:main"
+run = "src.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src"]
 exclude = ["build"]
+
+[tool.uv]
+package = true
