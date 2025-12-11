@@ -93,6 +93,7 @@ def render(precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
 
     ax.set_xlim(*X_VALUE_RANGE)
     ax.set_ylim(*Y_VALUE_RANGE)
+    ax.set_title(f"[{X_VALUE_RANGE[0]:.3f}; {X_VALUE_RANGE[1]:.3f}] range with {precision:.6f} precision")
     ax.legend(loc="upper right", ncols=1)
 
     return (fig, ax)

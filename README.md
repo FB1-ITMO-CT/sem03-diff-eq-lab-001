@@ -25,7 +25,7 @@ $\int t e^{-t} dt = -t e^{-t} - e^{-t} + C \Rightarrow -\int t e^{-t} dt = t e^{
 
 $z = y^{-2}$: $y^{-2} = x^2 + 1 + C e^{x^2}$  
 
-При $y(0) = 1$ получается: $1 = 0 + 1 + C \cdot 1 \Rightarrow C = 0 $ (как удобно)
+При $y(0) = 1$ получается: $1 = 0 + 1 + C \cdot 1 \Rightarrow C = 0$ (как удобно)
 
 **Итого**: $y(x) = \frac{1}{\sqrt{x^2 + 1}}, \quad x \in \mathbb{R}$
 
