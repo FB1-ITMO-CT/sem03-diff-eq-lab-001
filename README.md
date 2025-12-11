@@ -29,6 +29,10 @@ $z = y^{-2}$: $y^{-2} = x^2 + 1 + C e^{x^2}$
 
 **Итого**: $y(x) = \frac{1}{\sqrt{x^2 + 1}}, \quad x \in \mathbb{R}$
 
+## Графики
+
+![animated](./examples/animated.gif)
+
 ## Программная часть
 
 ### Исходный код
