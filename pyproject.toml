@@ -1,0 +1,31 @@
+[project]
+name = "differencial-equations_lab-work-1"
+version = "1.0.0"
+requires-python = "==3.14.2"
+authors = [
+  { name="Бородулин Фёдор", email="373151@edu.itmo.ru" },
+]
+dependencies = [
+    "matplotlib==3.10.8",
+    "numba==0.63.1",
+    "numpy==2.3.5"
+]
+
+[tool.ruff]
+target-version = "py314"
+lint.select = ["E", "F", "W"]
+lint.ignore = ["EM101"]
+lint.fixable = ["ALL"]
+lint.unfixable = []
+include = [
+    "./src"
+]
+line-length = 120
+
+[project.scripts]
+diff-eq-001 = "src.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src"]
+exclude = ["build"]
