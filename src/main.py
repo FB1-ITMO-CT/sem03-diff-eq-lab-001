@@ -86,10 +86,13 @@ def render(precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
 
     for method in APPROX_FUNCTIONS:
         f = getattr(approx_methods, "_".join(method.split()))
+
+        (line,) = ax.plot([X_VALUE_INIT], [Y_VALUE_INIT], label=method)
+
         if X_VALUE_RANGE[1] > X_VALUE_INIT:
-            ax.plot(*iterate(f, r0, condition, precision), label=method)
+            ax.plot(*iterate(f, r0, condition, precision), color=line.get_color())
         if X_VALUE_RANGE[0] < X_VALUE_INIT:
-            ax.plot(*iterate(f, r0, condition, -precision), label=method)
+            ax.plot(*iterate(f, r0, condition, -precision), color=line.get_color())
 
     ax.set_xlim(*X_VALUE_RANGE)
     ax.set_ylim(*Y_VALUE_RANGE)
