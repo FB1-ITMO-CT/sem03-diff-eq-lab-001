@@ -4,7 +4,7 @@
 
 Уравнение: $x^3 y^3 - xy$ при начальном условии $y(0) = 1$.
 
-Полная (технически корректная) версия находится в репозитории на Github: github.com/FB1-ITMO-CT/sem03-diff-eq-lab-001
+Полная (технически корректная) версия находится в репозитории на Github: [github.com/FB1-ITMO-CT/sem03-diff-eq-lab-001](https://github.com/FB1-ITMO-CT/sem03-diff-eq-lab-001)
 
 ## Аналитическое решение
 
