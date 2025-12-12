@@ -46,37 +46,40 @@ def iterate(
         result.append(r0[1])
         r0 = impl(r0)
 
-    if (r0 == r0).any():
-        coords.append(r0[0])
-        result.append(r0[1])
-
     return coords, result
 
 
 X_VALUE_INIT = 0.0
 Y_VALUE_INIT = 1.0
-X_VALUE_RANGE = [X_VALUE_INIT, 8.0]
 Y_VALUE_RANGE = (-0.1, 2)
 
 ALL_APPROX_FUNCTIONS = ["euler", "heun", "runge kutta 4", "runge_kutta 4 38", "runge kutta 5"]
-APPROX_FUNCTIONS = ALL_APPROX_FUNCTIONS[:3]
+
+SETTINGS: dict[str, tp.Any] = {
+    "SHOW_DEVIATION": False,
+    "APPROX_FUNCTIONS": ALL_APPROX_FUNCTIONS[:3],
+    "X_VALUE_RANGE": [X_VALUE_INIT, 8.0],
+}
 
 
 def render(precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
+    x_value_range = SETTINGS["X_VALUE_RANGE"]
+    approx_functions = SETTINGS["APPROX_FUNCTIONS"]
+    show_deviation = SETTINGS["SHOW_DEVIATION"]
+
     fig, ax = plt.subplots(1, 1, layout="constrained", figsize=(12, 8))
 
     r0 = make_coord(X_VALUE_INIT, Y_VALUE_INIT)
 
     def condition(r: Coord) -> bool:
         return (
-            r[0] >= X_VALUE_RANGE[0]
-            and r[0] <= X_VALUE_RANGE[1]
-            and r[1] >= Y_VALUE_RANGE[0]
-            and r[1] <= Y_VALUE_RANGE[1]
+            (r0 == r0).any() and r[0] >= x_value_range[0] and r[0] <= x_value_range[1]
+            # and r[1] >= Y_VALUE_RANGE[0]
+            # and r[1] <= Y_VALUE_RANGE[1]
         )
 
     ax.plot(
-        xs := np.arange(X_VALUE_RANGE[0], X_VALUE_RANGE[1], (X_VALUE_RANGE[1] - X_VALUE_RANGE[0]) / 666),
+        xs := np.arange(x_value_range[0], x_value_range[1], (x_value_range[1] - x_value_range[0]) / 666),
         solution(xs),
         label="true value",
         linestyle=":",
@@ -84,19 +87,28 @@ def render(precision: float) -> tuple[mpl_fig.Figure, mpl_ax.Axes]:
         color="green",
     )
 
-    for method in APPROX_FUNCTIONS:
+    for method in approx_functions:
         f = getattr(approx_methods, "_".join(method.split()))
 
-        (line,) = ax.plot([X_VALUE_INIT], [Y_VALUE_INIT], label=method)
+        line = ax.plot([X_VALUE_INIT], [Y_VALUE_INIT], label=method)[0]
+        dev, rel_dev = 0.0, 0.0
 
-        if X_VALUE_RANGE[1] > X_VALUE_INIT:
-            ax.plot(*iterate(f, r0, condition, precision), color=line.get_color())
-        if X_VALUE_RANGE[0] < X_VALUE_INIT:
-            ax.plot(*iterate(f, r0, condition, -precision), color=line.get_color())
+        for signed_precision in (precision, -precision):
+            xs, ys = iterate(f, r0, condition, signed_precision)
+            ax.plot(xs, ys, color=line.get_color())
 
-    ax.set_xlim(*X_VALUE_RANGE)
+            true_ys = solution(np.array(xs))
+
+            if show_deviation:
+                dev = max(dev, np.max(np.abs(true_ys - ys)))
+                rel_dev = max(rel_dev, np.max(np.abs((true_ys - ys) / true_ys)))
+
+        if show_deviation:
+            line.set_label(f"{method}: Δ={dev:.02E} δ={rel_dev:.02E}")
+
+    ax.set_xlim(*x_value_range)
     ax.set_ylim(*Y_VALUE_RANGE)
-    ax.set_title(f"[{X_VALUE_RANGE[0]:.3f}; {X_VALUE_RANGE[1]:.3f}] range with {precision:.6f} precision")
+    ax.set_title(f"[{x_value_range[0]:.3f}; {x_value_range[1]:.3f}] range with {precision:.6f} precision")
     ax.legend(loc="upper right", ncols=1)
 
     return (fig, ax)
@@ -115,24 +127,28 @@ def main() -> None:
     )
     parser.add_argument(
         "-methods",
-        default=[*APPROX_FUNCTIONS],
+        default=[*SETTINGS["APPROX_FUNCTIONS"]],
         nargs="+",
         type=str,
         metavar="method",
         choices=ALL_APPROX_FUNCTIONS,
         help=f"list of approximation function from `approx_methods.py`: {'{'}{', '.join(ALL_APPROX_FUNCTIONS)}{'}'}",
     )
+    parser.add_argument(
+        "--delta",
+        default=SETTINGS["SHOW_DEVIATION"],
+        action="store_true",
+        help="show Δ and δ",
+    )
 
     args = parser.parse_args()
-
-    APPROX_FUNCTIONS.clear()
-    APPROX_FUNCTIONS.extend(args.methods)
 
     if not (args.x_min <= args.x_max):
         raise ValueError("Range arguments have to be ordered correctly")
 
-    X_VALUE_RANGE[0] = args.x_min
-    X_VALUE_RANGE[1] = args.x_max
+    SETTINGS["APPROX_FUNCTIONS"] = args.methods
+    SETTINGS["X_VALUE_RANGE"] = (args.x_min, args.x_max)
+    SETTINGS["SHOW_DEVIATION"] = args.delta
 
     fig, _ = render(abs(tp.cast("float", args.precision)))
 
