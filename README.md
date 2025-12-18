@@ -62,20 +62,22 @@ $z = y^{-2}$: $y^{-2} = x^2 + 1 + C e^{x^2}$
 
 ### Сборка и запуск проекта
 
-Для работы с зависимостями используется инструмент [uv](https://github.com/astral-sh/uv).
-Создайте виртуальное окружение Python с необходимой для проекта версией интерпретатора 3.14: `uv venv --python 3.14 .venv`.
-Включите созданное окружение `./.venv/Scripts/activate` и синхронизируйте зависимости `uv sync --active`.
+Для работы с зависимостями используется инструмент [uv](https://github.com/astral-sh/uv):
 
-Теперь доступен CLI интерфейс проекта `run`, вызывающий функцию `src.main:main`.
-Можно запустить `run --help` для получения справки по аргументам командной строки.
+- Создайте виртуальное окружение Python с необходимой для проекта версией интерпретатора 3.14: `uv venv --python 3.14 .venv`.
+
+- Включите созданное окружение `./.venv/Scripts/activate` и синхронизируйте зависимости `uv sync --active`.
+
+- Теперь доступен CLI интерфейс проекта `run`, вызывающий функцию `src.main:main`.
+  Можно запустить `run --help` для получения справки по аргументам командной строки.
 
 ## Лицензия :)
 
 Copyright 2025 Borodulin Fedor
 
 Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+you may not use this file, this project source code and examples except
+in compliance with the License. You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
